@@ -1,0 +1,11 @@
+require('dotenv').config();
+const express=require('express'),cors=require('cors'),connectDB=require('./config/db');
+if(!process.env.JWT_SECRET){console.error('JWT_SECRET manquant');
+    process.exit(1)}const app=express();
+    app.use(cors());
+    app.use(express.json({limit:'1mb'}));
+    app.get('/api/health',(q,s)=>s.json({ok:true,service:'MHL Motors API'}));
+    app.use('/api/auth',require('./routes/authRoutes'));app.use('/api/vehicles',require('./routes/vehicleRoutes'));
+    app.use('/api/orders',require('./routes/orderRoutes'));
+    const port=process.env.PORT||5000;
+    connectDB().then(()=>app.listen(port,()=>console.log(`API: http://localhost:${port}`))).catch(e=>{console.error(e.message);process.exit(1)});

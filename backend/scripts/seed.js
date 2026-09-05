@@ -1,6 +1,11 @@
+const dns = require("dns");
+dns.setDefaultResultOrder("ipv4first");
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+
 require("dotenv").config();
 const mongoose = require("mongoose"),
   Vehicle = require("../models/Vehicle");
+
 (async () => {
   await mongoose.connect(process.env.MONGODB_URI);
   const vehicles = [

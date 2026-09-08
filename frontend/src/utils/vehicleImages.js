@@ -62,11 +62,23 @@ export function getVehicleImages(vehicle) {
   }
 
   const sourceAssets = source
-    .map((image) =>
-      assetEntries.find(([path]) => clean(path).includes(clean(image))),
-    )
-    .filter(Boolean)
-    .map(([, url]) => url);
+    .map((image) => {
+      const directMatch = assetEntries.find(([path]) =>
+        clean(path).includes(clean(image)),
+      );
+      if (directMatch) return directMatch[1];
+
+      const API_BASE_URL =
+        import.meta.env.VITE_API_URL ||
+        "https://mhl-motors-api.onrender.com/api";
+      const serverRoot = API_BASE_URL.replace(/\/api$/, "");
+      return `${serverRoot}/uploads/${String(image).trim()}`;
+    })
+    .filter(Boolean);
+
+  if (sourceAssets.length > 0) {
+    return sourceAssets;
+  }
 
   const vehicleText = clean(`${vehicle?.make} ${vehicle?.model}`);
   const matchingAlias = aliases.find(([alias]) =>
@@ -74,12 +86,12 @@ export function getVehicleImages(vehicle) {
   );
   const matchingAssets = matchingAlias ? findAssets(matchingAlias[1]) : [];
 
-  if (sourceAssets.length || matchingAssets.length) {
-    return [...new Set([...sourceAssets, ...matchingAssets])];
+  if (matchingAssets.length > 0) {
+    return matchingAssets;
   }
 
   const makeAssets = findAssets([vehicle?.make]);
-  if (makeAssets.length) return makeAssets;
+  if (makeAssets.length > 0) return makeAssets;
 
   return assetEntries.slice(0, 1).map(([, url]) => url);
 }

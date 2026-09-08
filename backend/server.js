@@ -40,6 +40,9 @@ app.use(
 
 app.use(express.json({ limit: "1mb" }));
 
+
+app.use("/uploads", express.static("uploads"));
+
 app.get("/api/health", (req, res) =>
   res.json({ ok: true, service: "MHL Motors API" }),
 );
@@ -48,7 +51,7 @@ app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/vehicles", require("./routes/vehicleRoutes"));
 app.use("/api/orders", require("./routes/orderRoutes"));
 
-// Gestionnaire 404
+
 app.use((req, res) => {
   res.status(404).json({ message: "Route non trouvée" });
 });
